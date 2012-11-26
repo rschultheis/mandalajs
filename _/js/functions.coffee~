@@ -1,5 +1,0 @@
-require('jquery') ->
-  example = $('#pad')
-  context = example.getContext('2d')
-  context.fillStyle = 'red'
-  context.fillRect(20,40,60,32)
