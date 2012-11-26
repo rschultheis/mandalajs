@@ -16,7 +16,7 @@ class Mandala
     timer = setInterval ( (mandala) -> 
       mandala.draw()
       mandala.offset += 0.01
-    ), 1000.0/40.0, this
+    ), 1000.0/30.0, this
 
     
   draw: () ->
