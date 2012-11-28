@@ -5,8 +5,8 @@
   MandalaAttrs = Backbone.Model.extend({
     defaults: {
       id: 'canvas',
-      width: 600,
-      height: 600,
+      width: 400,
+      height: 400,
       num_circles: 8,
       step: 0.005,
       offset: 0.0,
@@ -25,25 +25,56 @@
       return this.set({
         offset: this.get('offset') + this.get('step')
       });
+    },
+    toggle: function() {
+      this.set({
+        go: !(this.get('go'))
+      });
+      return this.get('go');
     }
   });
 
   Mandala = (function() {
 
     function Mandala(id) {
+      var _this = this;
       this.attrs = new MandalaAttrs({
         id: id
       });
       this.canvas_el = $("#" + this.attrs.id).get(0);
       this.canvas = this.canvas_el.getContext('2d');
+      this.circle_jerker = $('#num_circles');
+      this.circle_jerker.change(function(event) {
+        _this.attrs.set({
+          num_circles: _this.circle_jerker.attr('value')
+        });
+        return null;
+      });
       this.go();
+      this.speed = $('#speed');
+      this.speed.change(function(event) {
+        return _this.attrs.set({
+          step: _this.speed.attr('value') / 1000
+        });
+      });
+      this.toggler = $('#go');
+      this.toggler.click(function(event) {
+        if (_this.attrs.toggle()) {
+          _this.toggler.attr('value', 'Stop');
+          _this.go();
+        } else {
+          _this.toggler.attr('value', 'Start');
+        }
+        return null;
+      });
     }
 
     Mandala.prototype.go = function() {
-      return setTimeout((function(mandala) {
+      setTimeout((function(mandala) {
         mandala.draw();
         return mandala.attrs.inc();
       }), 1000.0 / 30.0, this);
+      return null;
     };
 
     Mandala.prototype.draw = function() {

@@ -1,8 +1,8 @@
 MandalaAttrs = Backbone.Model.extend
   defaults:
     id: 'canvas'
-    width: 600
-    height: 600
+    width: 400
+    height: 400
     num_circles: 8
     step: 0.005
     offset: 0.0
@@ -19,20 +19,43 @@ MandalaAttrs = Backbone.Model.extend
     this.set
       offset: this.get('offset') + this.get('step')
 
+  toggle: () ->
+    this.set go: not(this.get('go'))
+    return this.get('go')
+
 
 class Mandala
   constructor: (id) ->
     @attrs = new MandalaAttrs {id: id}
     @canvas_el = $("#" + @attrs.id).get(0)
     @canvas = @canvas_el.getContext('2d')
+
+    @circle_jerker = $('#num_circles')
+    @circle_jerker.change (event) =>
+      @attrs.set num_circles: @circle_jerker.attr('value')
+      return null
     @go()
+
+    @speed = $('#speed')
+    @speed.change (event) =>
+      @attrs.set step: @speed.attr('value') / 1000
+
+    @toggler = $('#go')
+    @toggler.click (event) =>
+      if @attrs.toggle()
+        @toggler.attr('value', 'Stop')
+        @go()
+      else
+        @toggler.attr('value', 'Start')
+      return null
 
   go: () ->
     setTimeout ( (mandala) -> 
       mandala.draw()
       mandala.attrs.inc()
     ), 1000.0/30.0, this
-    
+    return null
+
   draw: () ->
     @canvas.clearRect(0,0,@attrs.get('height'), @attrs.get('width'))
     @canvas.beginPath()
