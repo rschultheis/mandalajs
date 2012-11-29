@@ -1,35 +1,17 @@
-MandalaAttrs = Backbone.Model.extend
-  defaults:
-    id: 'canvas'
-    width: 400
-    height: 400
-    num_circles: 8
-    step: 0.005
-    offset: 0.0
-    go: false
-
-  initialize: () ->
-    this.set 
-      mid:
-        x: this.get('width') / 2
-        y: this.get('height') / 2
-      avg: (this.get('height') + this.get('width')) / 2
-
-  inc: () ->
-    this.set
-      offset: this.get('offset') + this.get('step')
-
-  toggle: () ->
-    this.set go: not(this.get('go'))
-    return this.get('go')
 
 class Circles
-  initialize: (@mandala) ->
+  constructor: (mandala) ->
+    @mandala = mandala
     @num_circles = 6
-    @draw()
+    
+    @circle_jerker = $('#num_circles')
+    @circle_jerker.attr('value', @num_circles)
+    @circle_jerker.change (event) =>
+      @num_circles = @circle_jerker.attr('value')
+      @mandala.draw()
   
   draw: () ->
-    for i in [1..@num_circles]
+    for i in [0..@num_circles]
       angle = ((2.0 * Math.PI / @num_circles) * i) + @mandala.offset
       x = @mandala.avg / 3 * Math.sin(angle)
       y = @mandala.avg / 3 * Math.cos(angle)
@@ -40,30 +22,37 @@ class Circles
 
 class Mandala
   constructor: (id) ->
-    @attrs = new MandalaAttrs {id: id}
-    @canvas_el = $("#" + @attrs.id).get(0)
+    @canvas_el = $("#" + id).get(0)
     @canvas = @canvas_el.getContext('2d')
+   
+    @width = 400
+    @height = 400 
+    @mid =
+      x: @width / 2
+      y: @height / 2
+    @avg = (@height + @width) / 2
 
-    @circle_jerker = $('#num_circles')
-    @circle_jerker.change (event) =>
-      @attrs.set num_circles: @circle_jerker.attr('value')
-      @draw()
-      return null
+    @step = 0.010
+    @offset = 0.0
+    @going = false
+
+    @circles = new Circles(this)
 
     @speed = $('#speed')
+    @speed.attr('value', @step * 1000)
     @speed.change (event) =>
-      @attrs.set step: @speed.attr('value') / 1000
+      @step = @speed.attr('value') / 1000
       return null
 
     @toggler = $('#go')
     @toggler.click (event) =>
-      if @attrs.toggle()
-        @go()
-      else
+      if @going
         @stop()
+      else
+        @go()
     
     @animate_interval = null
-    if @attrs.get('go')
+    if @going
       @go()
     else
       @draw()
@@ -72,25 +61,20 @@ class Mandala
   go: () ->
     @animate_interval = setInterval((() => 
       @draw()
-      @attrs.inc()
+      @offset += @step
     ), 1000.0/30.0) unless @animate_interval
     @toggler.attr('value', 'Stop')
+    @going = true
   
   stop: () ->
     clearInterval(@animate_interval) if @animate_interval
     @animate_interval = null
     @toggler.attr('value', 'Start')
+    @going = false
 
   draw: () ->
-    @canvas.clearRect(0,0,@attrs.get('height'), @attrs.get('width'))
-    @canvas.beginPath()
-    for i in [0..@attrs.get('num_circles')-1]
-      angle = ((2.0 * Math.PI / @attrs.get('num_circles')) * i) + @attrs.get('offset')
-      x = @attrs.get('avg') / 3 * Math.sin(angle)
-      y = @attrs.get('avg') / 3 * Math.cos(angle)
-      @canvas.beginPath()
-      @canvas.arc(@attrs.get('mid').x + x, @attrs.get('mid').y + y, @attrs.get('avg') / 15, 0, 2.0 * Math.PI)
-      @canvas.stroke()
+    @canvas.clearRect(0,0,@height, @width)
+    @circles.draw()
 
 
 
