@@ -6,7 +6,7 @@ MandalaAttrs = Backbone.Model.extend
     num_circles: 8
     step: 0.005
     offset: 0.0
-    go: true
+    go: false
 
   initialize: () ->
     this.set 
@@ -23,6 +23,20 @@ MandalaAttrs = Backbone.Model.extend
     this.set go: not(this.get('go'))
     return this.get('go')
 
+class Circles
+  initialize: (@mandala) ->
+    @num_circles = 6
+    @draw()
+  
+  draw: () ->
+    for i in [1..@num_circles]
+      angle = ((2.0 * Math.PI / @num_circles) * i) + @mandala.offset
+      x = @mandala.avg / 3 * Math.sin(angle)
+      y = @mandala.avg / 3 * Math.cos(angle)
+      @mandala.canvas.beginPath()
+      @mandala.canvas.arc(@mandala.mid.x + x, @mandala.mid.y + y, @mandala.avg / 15, 0, 2.0 * Math.PI)
+      @mandala.canvas.stroke()
+
 
 class Mandala
   constructor: (id) ->
@@ -33,28 +47,39 @@ class Mandala
     @circle_jerker = $('#num_circles')
     @circle_jerker.change (event) =>
       @attrs.set num_circles: @circle_jerker.attr('value')
+      @draw()
       return null
-    @go()
 
     @speed = $('#speed')
     @speed.change (event) =>
       @attrs.set step: @speed.attr('value') / 1000
+      return null
 
     @toggler = $('#go')
     @toggler.click (event) =>
       if @attrs.toggle()
-        @toggler.attr('value', 'Stop')
         @go()
       else
-        @toggler.attr('value', 'Start')
-      return null
+        @stop()
+    
+    @animate_interval = null
+    if @attrs.get('go')
+      @go()
+    else
+      @draw()
+      @stop()
 
   go: () ->
-    setTimeout ( (mandala) -> 
-      mandala.draw()
-      mandala.attrs.inc()
-    ), 1000.0/30.0, this
-    return null
+    @animate_interval = setInterval((() => 
+      @draw()
+      @attrs.inc()
+    ), 1000.0/30.0) unless @animate_interval
+    @toggler.attr('value', 'Stop')
+  
+  stop: () ->
+    clearInterval(@animate_interval) if @animate_interval
+    @animate_interval = null
+    @toggler.attr('value', 'Start')
 
   draw: () ->
     @canvas.clearRect(0,0,@attrs.get('height'), @attrs.get('width'))
@@ -67,7 +92,6 @@ class Mandala
       @canvas.arc(@attrs.get('mid').x + x, @attrs.get('mid').y + y, @attrs.get('avg') / 15, 0, 2.0 * Math.PI)
       @canvas.stroke()
 
-    @go() if @attrs.get('go')
 
 
 $(window).ready ->
