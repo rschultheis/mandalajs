@@ -8,7 +8,8 @@
       var _this = this;
       this.mandala = mandala;
       this.num_circles = 6;
-      this.radius = Math.floor(this.mandala.avg / 3);
+      this.x_radius = Math.floor(this.mandala.avg / 3);
+      this.y_radius = Math.floor(this.mandala.avg / 3);
       this.radii = Math.floor(this.mandala.avg / 15);
       this.circle_jerker = $('#num_circles');
       this.circle_jerker.attr('value', this.num_circles);
@@ -16,10 +17,16 @@
         _this.num_circles = _this.circle_jerker.attr('value');
         return _this.mandala.draw();
       });
-      this.radius_jerker = $('#radius');
-      this.radius_jerker.attr('value', this.radius);
-      this.radius_jerker.change(function(event) {
-        _this.radius = _this.radius_jerker.attr('value');
+      this.x_radius_jerker = $('#x_radius');
+      this.x_radius_jerker.attr('value', this.x_radius);
+      this.x_radius_jerker.change(function(event) {
+        _this.x_radius = _this.x_radius_jerker.attr('value');
+        return _this.mandala.draw();
+      });
+      this.y_radius_jerker = $('#y_radius');
+      this.y_radius_jerker.attr('value', this.y_radius);
+      this.y_radius_jerker.change(function(event) {
+        _this.y_radius = _this.y_radius_jerker.attr('value');
         return _this.mandala.draw();
       });
       this.radii_jerker = $('#radii');
@@ -33,10 +40,10 @@
     Circles.prototype.draw = function() {
       var angle, i, x, y, _i, _ref, _results;
       _results = [];
-      for (i = _i = 0, _ref = this.num_circles; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 1, _ref = this.num_circles; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
         angle = ((2.0 * Math.PI / this.num_circles) * i) + this.mandala.offset;
-        x = this.radius * Math.sin(angle);
-        y = this.radius * Math.cos(angle);
+        x = this.x_radius * Math.sin(angle);
+        y = this.y_radius * Math.cos(angle);
         this.mandala.canvas.beginPath();
         this.mandala.canvas.arc(this.mandala.mid.x + x, this.mandala.mid.y + y, this.radii, 0, 2.0 * Math.PI);
         _results.push(this.mandala.canvas.stroke());

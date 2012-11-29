@@ -3,7 +3,8 @@ class Circles
   constructor: (mandala) ->
     @mandala = mandala
     @num_circles = 6
-    @radius = Math.floor(@mandala.avg / 3)
+    @x_radius = Math.floor(@mandala.avg / 3)
+    @y_radius = Math.floor(@mandala.avg / 3)
     @radii = Math.floor(@mandala.avg / 15)
     
     @circle_jerker = $('#num_circles')
@@ -12,10 +13,16 @@ class Circles
       @num_circles = @circle_jerker.attr('value')
       @mandala.draw()
 
-    @radius_jerker = $('#radius')
-    @radius_jerker.attr('value', @radius)
-    @radius_jerker.change (event) =>
-      @radius = @radius_jerker.attr('value')
+    @x_radius_jerker = $('#x_radius')
+    @x_radius_jerker.attr('value', @x_radius)
+    @x_radius_jerker.change (event) =>
+      @x_radius = @x_radius_jerker.attr('value')
+      @mandala.draw()
+
+    @y_radius_jerker = $('#y_radius')
+    @y_radius_jerker.attr('value', @y_radius)
+    @y_radius_jerker.change (event) =>
+      @y_radius = @y_radius_jerker.attr('value')
       @mandala.draw()
 
     @radii_jerker = $('#radii')
@@ -25,10 +32,10 @@ class Circles
       @mandala.draw()
   
   draw: () ->
-    for i in [0..@num_circles]
+    for i in [1..@num_circles]
       angle = ((2.0 * Math.PI / @num_circles) * i) + @mandala.offset
-      x = @radius * Math.sin(angle)
-      y = @radius * Math.cos(angle)
+      x = @x_radius * Math.sin(angle)
+      y = @y_radius * Math.cos(angle)
       @mandala.canvas.beginPath()
       @mandala.canvas.arc(@mandala.mid.x + x, @mandala.mid.y + y, @radii, 0, 2.0 * Math.PI)
       @mandala.canvas.stroke()
