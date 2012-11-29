@@ -71,7 +71,7 @@
       this.step = 0.010;
       this.offset = 0.0;
       this.going = false;
-      this.circles = new Circles(this);
+      this.components = [new Circles(this)];
       this.speed = $('#speed');
       this.speed.attr('value', this.step * 1000);
       this.speed.change(function(event) {
@@ -117,8 +117,15 @@
     };
 
     Mandala.prototype.draw = function() {
+      var component, _i, _len, _ref, _results;
       this.canvas.clearRect(0, 0, this.height, this.width);
-      return this.circles.draw();
+      _ref = this.components;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        component = _ref[_i];
+        _results.push(component.draw());
+      }
+      return _results;
     };
 
     return Mandala;

@@ -57,7 +57,7 @@ class Mandala
     @offset = 0.0
     @going = false
 
-    @circles = new Circles(this)
+    @components = [ new Circles(this) ]
 
     @speed = $('#speed')
     @speed.attr('value', @step * 1000)
@@ -95,7 +95,8 @@ class Mandala
 
   draw: () ->
     @canvas.clearRect(0,0,@height, @width)
-    @circles.draw()
+    for component in @components
+      component.draw()
 
 
 
