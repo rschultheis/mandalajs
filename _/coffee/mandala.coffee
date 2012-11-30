@@ -1,11 +1,31 @@
 
+#helper function is used for generating object to update a model after an input field changes
+# object depends on formatting of value of input field
+get_change_object = (name, element_value) ->
+  JSON.parse switch name
+    when 'animating'
+      if element_value == 'Stop'
+        "{\""+name+"\": false }"
+      else
+        "{\""+name+"\": true }"
+
+    else
+      #cant use typeof or instanceof here b/c those don't work for built in types !! argh
+      if /^[-+]?\d+\.\d+$/.test(element_value)
+        "{\""+name+"\":"+parseFloat(element_value,10)+"}"
+      else if /^[-+]?\d+$/.test(element_value)
+        "{\""+name+"\":"+parseInt(element_value,10)+"}"
+      else
+        "{\""+name+"\":\""+element_value+"\"}"
+
+
+
 class Circles
-  constructor: (mandala) ->
-    @mandala = mandala
+  constructor: (@mandala) ->
     @num_circles = 6
-    @x_radius = Math.floor(@mandala.avg / 3)
-    @y_radius = Math.floor(@mandala.avg / 3)
-    @radii = Math.floor(@mandala.avg / 15)
+    @x_radius = Math.floor(@mandala.model.get('avg') / 3)
+    @y_radius = Math.floor(@mandala.model.get('avg') / 3)
+    @radii = Math.floor(@mandala.model.get('avg') / 15)
     
     @circle_jerker = $('#num_circles')
     @circle_jerker.attr('value', @num_circles)
@@ -32,73 +52,95 @@ class Circles
       @mandala.draw()
   
   draw: () ->
+    #get everything we need from the mandala view/model upfront
+    canvas = @mandala.canvas
+    mid    = @mandala.model.get('mid')
+    offset = @mandala.model.get('offset')
+
     for i in [1..@num_circles]
-      angle = ((2.0 * Math.PI / @num_circles) * i) + @mandala.offset
+      angle = ((2.0 * Math.PI / @num_circles) * i) + offset
       x = @x_radius * Math.sin(angle)
       y = @y_radius * Math.cos(angle)
-      @mandala.canvas.beginPath()
-      @mandala.canvas.arc(@mandala.mid.x + x, @mandala.mid.y + y, @radii, 0, 2.0 * Math.PI)
-      @mandala.canvas.stroke()
+      canvas.beginPath()
+      canvas.arc(mid.x + x, mid.y + y, @radii, 0, 2.0 * Math.PI)
+      canvas.stroke()
 
+MandalaModel = Backbone.Model.extend
+  defaults:
+    height: 400
+    width: 400
+    step: 0.008
+    offset: 0.0
+    animating: false
 
-class Mandala
-  constructor: (id) ->
-    @canvas_el = $("#" + id).get(0)
-    @canvas = @canvas_el.getContext('2d')
+  initialize: () ->
+    @calculate_dimensional_attributes()
+
+  calculate_dimensional_attributes: () ->
+    @set 
+      mid:
+        x: Math.floor(@get('width')  / 2)
+        y: Math.floor(@get('height') / 2)
+      avg: Math.floor((@get('width') + @get('height')) / 2)
    
-    @width = 400
-    @height = 400 
-    @mid =
-      x: @width / 2
-      y: @height / 2
-    @avg = (@height + @width) / 2
+  increment: () ->
+    this.set('offset', this.get('offset') + this.get('step'))
 
-    @step = 0.010
-    @offset = 0.0
-    @going = false
+
+MandalaControlsView = Backbone.View.extend
+  el: '#mandala'
+  model: new MandalaModel
+
+  initialize: ->
+    @render()
+    @canvas_el = $('#mandala-canvas').get(0)
+    @canvas = @canvas_el.getContext('2d')
+    @toggler = $('input[name=animating]')
 
     @components = [ new Circles(this) ]
 
-    @speed = $('#speed')
-    @speed.attr('value', @step * 1000)
-    @speed.change (event) =>
-      @step = @speed.attr('value') / 1000
-      return null
+    @model.bind('change', @model_changed, this)
+    @model_changed()  #call once to get animating or not
 
-    @toggler = $('#go')
-    @toggler.click (event) =>
-      if @going
-        @stop()
-      else
-        @go()
-    
-    @animate_interval = null
-    if @going
+    @draw()
+
+  render: ->
+    template = _.template($('#mandala-template').html(), @model.toJSON())
+    this.$el.html(template)
+
+  events:
+    "change input"              : "control_changed"
+    "click  input[type=button]" : "control_changed"
+
+  control_changed: (evt) ->
+    name  = evt.currentTarget.name
+    element_value = evt.currentTarget.value
+    chg_obj = get_change_object(name, element_value)
+    @model.set chg_obj
+
+  model_changed: () ->
+    if @model.get('animating')
       @go()
     else
-      @draw()
       @stop()
-
+  
   go: () ->
     @animate_interval = setInterval((() => 
       @draw()
-      @offset += @step
+      @model.increment()
     ), 1000.0/30.0) unless @animate_interval
     @toggler.attr('value', 'Stop')
-    @going = true
   
   stop: () ->
     clearInterval(@animate_interval) if @animate_interval
     @animate_interval = null
     @toggler.attr('value', 'Start')
-    @going = false
 
   draw: () ->
-    @canvas.clearRect(0,0,@height, @width)
+    @canvas.clearRect(0,0,@model.get('height'), @model.get('width'))
     for component in @components
       component.draw()
 
 
-
 $(window).ready ->
-  m = new Mandala 'mandala-canvas'
+  m = new MandalaControlsView

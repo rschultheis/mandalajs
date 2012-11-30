@@ -72,9 +72,12 @@
 	</header>
 
         <section id='middle'>
-
+	
 	<div id='mandala'>
-	  <canvas id='mandala-canvas' height=400 width=400>
+          You must enable Javascript for this to work
+        </div>
+        <script type='text/template' id='mandala-template'>
+	  <canvas id='mandala-canvas' height=<%= height %> width=<%= width %>>
 		You don't support canvas
 	  </canvas>
          
@@ -82,15 +85,15 @@
 
             <div class='mandala-control'>
               <label>Speed</label>
-              <input type='number' id='speed' value='5'/>
+              <input type='number' name='step' value='<%= step %>' step='0.001'/>
             </div>
             <div class='mandala-control'>
               <label>Animation</label>
-              <input type='button' id='go' value='Stop'/>
+              <input type='button' name='animating' value='Overwrite_Me'/>
             </div>
           </aside>
+        </script>
 
-        </div>
 
         </section>
 
@@ -99,8 +102,9 @@
 	    <h3 class='mandala-control-heading'>Circles</h3>
             <div class='mandala-control'>
               <label>Number of circles</label>
-              <input type='number' id='num_circles' value='1'/>
+              <input type='number' id='num_circles' value='1' step='1' min='1' />
             </div>
+
             <div class='mandala-control'>
               <label>X Radius</label>
               <input type='number' id='x_radius' value='1'/>
