@@ -22,10 +22,10 @@ get_change_object = (name, element_value) ->
 
 class Circles
   constructor: (@mandala) ->
-    @num_circles = 6
-    @x_radius = Math.floor(@mandala.model.get('avg') / 3)
-    @y_radius = Math.floor(@mandala.model.get('avg') / 3)
-    @radii = Math.floor(@mandala.model.get('avg') / 15)
+    @num_circles = 100
+    @x_radius = Math.floor(@mandala.model.get('avg') )
+    @y_radius = Math.floor(@mandala.model.get('avg') )
+    @radii = Math.floor(@mandala.model.get('avg') )
     
     @circle_jerker = $('#num_circles')
     @circle_jerker.attr('value', @num_circles)

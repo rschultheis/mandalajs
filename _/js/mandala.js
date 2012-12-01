@@ -29,10 +29,10 @@
     function Circles(mandala) {
       var _this = this;
       this.mandala = mandala;
-      this.num_circles = 6;
-      this.x_radius = Math.floor(this.mandala.model.get('avg') / 3);
-      this.y_radius = Math.floor(this.mandala.model.get('avg') / 3);
-      this.radii = Math.floor(this.mandala.model.get('avg') / 15);
+      this.num_circles = 100;
+      this.x_radius = Math.floor(this.mandala.model.get('avg'));
+      this.y_radius = Math.floor(this.mandala.model.get('avg'));
+      this.radii = Math.floor(this.mandala.model.get('avg'));
       this.circle_jerker = $('#num_circles');
       this.circle_jerker.attr('value', this.num_circles);
       this.circle_jerker.change(function(event) {
