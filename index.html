@@ -99,24 +99,6 @@
 
         <section id='mandala-component-controls'>
           <div id='circles-0' class='mandala-component-control'>
-	    <h3 class='mandala-control-heading'>Circles</h3>
-            <div class='mandala-control'>
-              <label>Number of circles</label>
-              <input type='number' id='num_circles' value='1' step='1' min='1' />
-            </div>
-
-            <div class='mandala-control'>
-              <label>X Radius</label>
-              <input type='number' id='x_radius' value='1'/>
-            </div>
-            <div class='mandala-control'>
-              <label>Y Radius</label>
-              <input type='number' id='y_radius' value='1'/>
-            </div>
-            <div class='mandala-control'>
-              <label>Radii</label>
-              <input type='number' id='radii' value='1'/>
-            </div>
 
           </div>
         </section>
@@ -139,3 +121,23 @@
   
 </body>
 </html>
+
+<script type='text/template' id='circles-template'>
+  <h3 class='mandala-control-heading'>Circles</h3>
+  <div class='mandala-control'>
+    <label>Number of circles</label>
+    <input type='number' name='num_circles' value='<%= num_circles %>' step='1' min='1' />
+   </div>
+   <div class='mandala-control'>
+     <label>X Radius</label>
+     <input type='number' name='x_radius' value='<%= x_radius %>'/>
+   </div>
+   <div class='mandala-control'>
+     <label>Y Radius</label>
+     <input type='number' name='y_radius' value='<%= y_radius %>'/>
+   </div>
+   <div class='mandala-control'>
+     <label>Radii</label>
+     <input type='number' name='radii' value='<%= radii %>'/>
+   </div>
+</script>

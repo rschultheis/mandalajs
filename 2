@@ -19,6 +19,51 @@ get_change_object = (name, element_value) ->
         "{\""+name+"\":\""+element_value+"\"}"
 
 
+class Circles
+  constructor: (@mandala) ->
+    @num_circles = 100
+    @x_radius = Math.floor(@mandala.model.get('avg') )
+    @y_radius = Math.floor(@mandala.model.get('avg') )
+    @radii = Math.floor(@mandala.model.get('avg') )
+    
+    @circle_jerker = $('#num_circles')
+    @circle_jerker.attr('value', @num_circles)
+    @circle_jerker.change (event) =>
+      @num_circles = @circle_jerker.attr('value')
+      @mandala.draw()
+
+    @x_radius_jerker = $('#x_radius')
+    @x_radius_jerker.attr('value', @x_radius)
+    @x_radius_jerker.change (event) =>
+      @x_radius = @x_radius_jerker.attr('value')
+      @mandala.draw()
+
+    @y_radius_jerker = $('#y_radius')
+    @y_radius_jerker.attr('value', @y_radius)
+    @y_radius_jerker.change (event) =>
+      @y_radius = @y_radius_jerker.attr('value')
+      @mandala.draw()
+
+    @radii_jerker = $('#radii')
+    @radii_jerker.attr('value', @radii)
+    @radii_jerker.change (event) =>
+      @radii = @radii_jerker.attr('value')
+      @mandala.draw()
+  
+  draw: () ->
+    #get everything we need from the mandala view/model upfront
+    canvas = @mandala.canvas
+    mid    = @mandala.model.get('mid')
+    offset = @mandala.model.get('offset')
+
+    for i in [1..@num_circles]
+      angle = ((2.0 * Math.PI / @num_circles) * i) + offset
+      x = @x_radius * Math.sin(angle)
+      y = @y_radius * Math.cos(angle)
+      canvas.beginPath()
+      canvas.arc(mid.x + x, mid.y + y, @radii, 0, 2.0 * Math.PI)
+      canvas.stroke()
+
 MandalaModel = Backbone.Model.extend
   defaults:
     height: 400
@@ -51,7 +96,6 @@ CirclesView = Backbone.View.extend
   model: new CirclesModel
   mandala_model: null
   canvas: null
-  mandala_control: null
 
   initialize: ->
     @render()
@@ -60,17 +104,6 @@ CirclesView = Backbone.View.extend
     template = _.template($('#circles-template').html(), @model.toJSON())
     this.$el.html(template)
 
-  events:
-    "change input"              : "control_changed"
-    "click  input[type=button]" : "control_changed"
-
-  control_changed: (evt) ->
-    name  = evt.currentTarget.name
-    element_value = evt.currentTarget.value
-    chg_obj = get_change_object(name, element_value)
-    @model.set chg_obj
-    @mandala_control.draw() unless @mandala_model.get('animating')
-
   draw: () ->
     #get everything we need from the mandala view/model upfront
     mid    = @mandala_model.get('mid')
@@ -78,21 +111,19 @@ CirclesView = Backbone.View.extend
     num_circles = @model.get('num_circles')
     x_radius = @model.get('x_radius')
     y_radius = @model.get('y_radius')
-    radii = @model.get('radii')
 
-    for i in [1..num_circles]
-      angle = ((2.0 * Math.PI / num_circles) * i) + offset
+    for i in [1..@num_circles]
+      angle = ((2.0 * Math.PI / @num_circles) * i) + offset
       x = x_radius * Math.sin(angle)
       y = y_radius * Math.cos(angle)
       @canvas.beginPath()
-      @canvas.arc(mid.x + x, mid.y + y, radii, 0, 2.0 * Math.PI)
+      @canvas.arc(mid.x + x, mid.y + y, @radii, 0, 2.0 * Math.PI)
       @canvas.stroke()
 
 
 MandalaControlsView = Backbone.View.extend
   el: '#mandala'
   model: new MandalaModel
-  components: []
 
   initialize: ->
     @render()
@@ -100,20 +131,14 @@ MandalaControlsView = Backbone.View.extend
     @canvas = @canvas_el.getContext('2d')
     @toggler = $('input[name=animating]')
 
-    @add_control('circles')
+    @components = [ new Circles(this) ]
+
+    new CirclesView(el: '#circles-0', mandala_model: @model, canvas: @canvas)
 
     @model.bind('change', @model_changed, this)
     @model_changed()  #call once to get animating or not
 
     @draw()
-
-  add_control: (type) ->
-    new_component = new CirclesView el: '#circles-0'
-    new_component.mandala_model = @model
-    new_component.canvas = @canvas
-    new_component.reset_canvas = @draw
-    new_component.mandala_control = this
-    @components.push(new_component)
 
   render: ->
     template = _.template($('#mandala-template').html(), @model.toJSON())
