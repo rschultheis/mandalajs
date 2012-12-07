@@ -62,53 +62,32 @@
 </head>
 
 <body>
+<div id="wrapper" >
 
-<div id="wrapper">
+  <header id='header' >
+    <h1>MandalaJS</h1>
+  </header>
 
-	<header id='header'>
-		
-		<h1>MandalaJS</h1>
-		
-	</header>
-
-        <section id='middle'>
+  <section id='middle' >
+    <div id='mandala' >
 	
-	<div id='mandala'>
-          You must enable Javascript for this to work
-        </div>
-        <script type='text/template' id='mandala-template'>
-	  <canvas id='mandala-canvas' height=<%= height %> width=<%= width %>>
-		You don't support canvas
-	  </canvas>
-         
-          <aside id='mandala-controls'>
+      <span id='mandala-controls' >
+      </span>
+      <canvas id='mandala-canvas' height=400 width=400 >
+        You must use a modern browser with Javascript enabled for this to work
+      </canvas>
+    </div>
 
-            <div class='mandala-control'>
-              <label>Speed</label>
-              <input type='number' name='step' value='<%= step %>' step='0.001'/>
-            </div>
-            <div class='mandala-control'>
-              <label>Animation</label>
-              <input type='button' name='animating' value='Overwrite_Me'/>
-            </div>
-          </aside>
-        </script>
+  </section>
 
+  <section id='mandala-component-controls'>
+    <div id='drawer-0' class='mandala-component-control'>
+    </div>
+  </section>
 
-        </section>
-
-        <section id='mandala-component-controls'>
-          <div id='circles-0' class='mandala-component-control'>
-
-          </div>
-        </section>
-	
-	
-	<footer id='footer'>
-		
-		<p><small>&copy; Copyright Robert Schultheis 2012. All Rights Reserved.</small></p>
-		
-	</footer>
+  <footer id='footer'>
+    <p><small>&copy; Copyright Robert Schultheis 2012. All Rights Reserved.</small></p>
+  </footer>
 </div>
 
 <!-- here comes the javascript -->
@@ -118,9 +97,20 @@
 
 <!-- custom js -->
 <script src="_/js/mandala.js"></script>
-  
-</body>
-</html>
+
+<!-- html templates -->
+<script type='text/template' id='mandala-template'>
+  <aside>
+    <div class='mandala-control'>
+      <label>Speed</label>
+      <input type='number' name='step' value='<%= step %>' step='0.001'/>
+    </div>
+    <div class='mandala-control'>
+      <label>Animation</label>
+      <input type='button' name='animating' value='Overwrite_Me'/>
+    </div>
+  </aside>
+</script>
 
 <script type='text/template' id='circles-template'>
   <h3 class='mandala-control-heading'>Circles</h3>
@@ -141,3 +131,22 @@
      <input type='number' name='radii' value='<%= radii %>'/>
    </div>
 </script>
+  
+<script type='text/template' id='stars-template'>
+  <h3 class='mandala-control-heading'>Stars</h3>
+  <div class='mandala-control'>
+    <label>Points</label>
+    <input type='number' name='points' value='<%= points %>' step='1' min='1' />
+  </div>
+  <div class='mandala-control'>
+    <label>Inner Radius</label>
+    <input type='number' name='inner_radius' value='<%= inner_radius %>' step='1' />
+  </div>
+  <div class='mandala-control'>
+    <label>Outer Radius</label>
+    <input type='number' name='outer_radius' value='<%= outer_radius %>' step='1' />
+  </div>
+</script>
+
+</body>
+</html>
