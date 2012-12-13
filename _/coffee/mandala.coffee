@@ -80,9 +80,9 @@ CirclesView = GenericDrawer.extend
 # STAR drawer
 StarsModel = Backbone.Model.extend
   defaults:
-    points: 8
-    inner_radius: 40
-    outer_radius: 160
+    points: 60
+    inner_radius: 100
+    outer_radius: 200
 
 StarsView = GenericDrawer.extend
   model: new StarsModel
@@ -167,12 +167,17 @@ MandalaControlsView = Backbone.View.extend
   components: []
 
   initialize: ->
+    @controls_id = 0
     @render()
+  
+    @drawer_controls_container = $('#drawer-controls')
+
     @canvas_el = $('#mandala-canvas').get(0)
     @canvas = @canvas_el.getContext('2d')
     @toggler = $('input[name=animating]')
 
-    @add_control(null)
+    @add_control('stars')
+    @add_control('circles')
 
     @model.bind('change', @model_changed, this)
     @model_changed()  #call once to get animating or not
@@ -181,8 +186,19 @@ MandalaControlsView = Backbone.View.extend
 
   add_control: (type) ->
     #type is ignored right now....
-    #new_component = new CirclesView el: '#drawer-0'
-    new_component = new StarsView el: '#drawer-0'
+    @controls_id = @controls_id + 1
+    id = 'drawer-' + @controls_id
+    jid = '#' + id
+    container = _.template($('#drawer-container-template').html(), {id: id})
+    @drawer_controls_container.append(container)
+
+    new_component = switch type
+      when 'circles'
+        new CirclesView el: jid
+      when 'stars'
+        new StarsView el: jid
+      else
+        console.log 'ERROR: unknown type of drawer: ' + type
     new_component.mandala_model = @model
     new_component.canvas = @canvas
     new_component.reset_canvas = @draw

@@ -80,9 +80,7 @@
 
   </section>
 
-  <section id='mandala-component-controls'>
-    <div id='drawer-0' class='mandala-component-control'>
-    </div>
+  <section id='drawer-controls'>
   </section>
 
   <footer id='footer'>
@@ -110,8 +108,13 @@
       <input type='button' name='animating' value='Overwrite_Me'/>
     </div>
   </aside>
+</div>
 </script>
 
+<script type='text/template' id='drawer-container-template'>
+  <div id='<%= id %>' class='mandala-component-control'>
+  </div>
+</script>
 <script type='text/template' id='circles-template'>
   <h3 class='mandala-control-heading'>Circles</h3>
   <div class='mandala-control'>

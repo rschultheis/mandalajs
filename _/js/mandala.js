@@ -80,9 +80,9 @@
 
   StarsModel = Backbone.Model.extend({
     defaults: {
-      points: 8,
-      inner_radius: 40,
-      outer_radius: 160
+      points: 60,
+      inner_radius: 100,
+      outer_radius: 200
     }
   });
 
@@ -170,20 +170,41 @@
     model: new MandalaModel,
     components: [],
     initialize: function() {
+      this.controls_id = 0;
       this.render();
+      this.drawer_controls_container = $('#drawer-controls');
       this.canvas_el = $('#mandala-canvas').get(0);
       this.canvas = this.canvas_el.getContext('2d');
       this.toggler = $('input[name=animating]');
-      this.add_control(null);
+      this.add_control('stars');
+      this.add_control('circles');
       this.model.bind('change', this.model_changed, this);
       this.model_changed();
       return this.draw();
     },
     add_control: function(type) {
-      var new_component;
-      new_component = new StarsView({
-        el: '#drawer-0'
+      var container, id, jid, new_component;
+      this.controls_id = this.controls_id + 1;
+      id = 'drawer-' + this.controls_id;
+      jid = '#' + id;
+      container = _.template($('#drawer-container-template').html(), {
+        id: id
       });
+      this.drawer_controls_container.append(container);
+      new_component = (function() {
+        switch (type) {
+          case 'circles':
+            return new CirclesView({
+              el: jid
+            });
+          case 'stars':
+            return new StarsView({
+              el: jid
+            });
+          default:
+            return console.log('ERROR: unknown type of drawer: ' + type);
+        }
+      })();
       new_component.mandala_model = this.model;
       new_component.canvas = this.canvas;
       new_component.reset_canvas = this.draw;
