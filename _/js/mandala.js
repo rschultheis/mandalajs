@@ -176,11 +176,18 @@
       this.canvas_el = $('#mandala-canvas').get(0);
       this.canvas = this.canvas_el.getContext('2d');
       this.toggler = $('input[name=animating]');
-      this.add_control('stars');
-      this.add_control('circles');
       this.model.bind('change', this.model_changed, this);
       this.model_changed();
       return this.draw();
+    },
+    add_drawer: function() {
+      var type;
+      type = $("option:selected", $('#drawer-to-add')).text();
+      console.log('adding ' + type);
+      this.add_control(type);
+      if (!this.model.get('animating')) {
+        return this.draw();
+      }
     },
     add_control: function(type) {
       var container, id, jid, new_component;
@@ -217,8 +224,9 @@
       return this.$el.html(template);
     },
     events: {
-      "change input": "control_changed",
-      "click  input[type=button]": "control_changed"
+      "change .model": "control_changed",
+      "click  .model[type=button]": "control_changed",
+      "click  #add-new-drawer": "add_drawer"
     },
     control_changed: function(evt) {
       var chg_obj, element_value, name;

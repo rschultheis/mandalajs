@@ -101,11 +101,19 @@
   <aside>
     <div class='mandala-control'>
       <label>Speed</label>
-      <input type='number' name='step' value='<%= step %>' step='0.001'/>
+      <input type='number' name='step' value='<%= step %>' step='0.001' class='model'/>
     </div>
     <div class='mandala-control'>
       <label>Animation</label>
-      <input type='button' name='animating' value='Overwrite_Me'/>
+      <input type='button' name='animating' value='Overwrite_Me' class='model'/>
+    </div>
+    <div>
+      <label>Add Drawer</label>
+      <select id='drawer-to-add'>
+        <option>circles</option>
+        <option>stars</option>
+      </select>
+      <input type='button' id='add-new-drawer' value='Add'>
     </div>
   </aside>
 </div>

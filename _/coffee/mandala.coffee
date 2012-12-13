@@ -176,14 +176,20 @@ MandalaControlsView = Backbone.View.extend
     @canvas = @canvas_el.getContext('2d')
     @toggler = $('input[name=animating]')
 
-    @add_control('stars')
-    @add_control('circles')
+    #@add_control('stars')
+    #@add_control('circles')
 
     @model.bind('change', @model_changed, this)
     @model_changed()  #call once to get animating or not
 
     @draw()
 
+  add_drawer: ->
+    type = $("option:selected", $('#drawer-to-add')).text()
+    console.log 'adding ' + type
+    @add_control(type)
+    @draw() unless @model.get('animating')
+ 
   add_control: (type) ->
     #type is ignored right now....
     @controls_id = @controls_id + 1
@@ -210,8 +216,9 @@ MandalaControlsView = Backbone.View.extend
     this.$el.html(template)
 
   events:
-    "change input"              : "control_changed"
-    "click  input[type=button]" : "control_changed"
+    "change .model"              : "control_changed"
+    "click  .model[type=button]" : "control_changed"
+    "click  #add-new-drawer"     : "add_drawer"
 
   control_changed: (evt) ->
     name  = evt.currentTarget.name
