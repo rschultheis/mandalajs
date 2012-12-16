@@ -12,6 +12,7 @@
     canvas: null,
     mandala_control: null,
     initialize: function() {
+      this.setup_model();
       return this.render();
     },
     render: function() {
@@ -55,8 +56,10 @@
   });
 
   CirclesView = GenericDrawer.extend({
-    model: new CirclesModel,
     template_locator: '#circles-template',
+    setup_model: function() {
+      return this.model = new CirclesModel;
+    },
     draw: function() {
       var angle, i, mid, num_circles, offset, radii, x, x_radius, y, y_radius, _i, _results;
       mid = this.mandala_model.get('mid');
@@ -87,8 +90,10 @@
   });
 
   StarsView = GenericDrawer.extend({
-    model: new StarsModel,
     template_locator: '#stars-template',
+    setup_model: function() {
+      return this.model = new StarsModel;
+    },
     draw: function() {
       var attrs, i, mattrs, midx, midy, point, step, _i, _ref;
       mattrs = this.mandala_model.attributes;

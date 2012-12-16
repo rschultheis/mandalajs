@@ -21,6 +21,7 @@ GenericDrawer = Backbone.View.extend
   mandala_control: null
   
   initialize: ->
+    @setup_model()
     @render()
 
   render: ->
@@ -57,8 +58,10 @@ CirclesModel = Backbone.Model.extend
     radii: 400
 
 CirclesView = GenericDrawer.extend
-  model: new CirclesModel
   template_locator: '#circles-template'
+
+  setup_model: () ->
+    @model = new CirclesModel
 
   draw: () ->
     #get everything we need from the mandala view/model upfront
@@ -85,8 +88,10 @@ StarsModel = Backbone.Model.extend
     outer_radius: 200
 
 StarsView = GenericDrawer.extend
-  model: new StarsModel
   template_locator: '#stars-template'
+
+  setup_model: () ->
+    @model = new StarsModel
 
   draw: () ->
     #@draw_crosshairs()
