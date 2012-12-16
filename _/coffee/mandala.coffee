@@ -19,8 +19,10 @@ GenericDrawer = Backbone.View.extend
   mandala_model: null
   canvas: null
   mandala_control: null
+  name: null
   
-  initialize: ->
+  initialize: (init_obj) ->
+    @name = init_obj?.name
     @setup_model()
     @render()
 
@@ -167,14 +169,16 @@ MandalaModel = Backbone.Model.extend
     this.set('offset', this.get('offset') + this.get('step'))
 
 MandalaControlsView = Backbone.View.extend
-  el: '#mandala-controls'
+  el: '#wrapper'
   model: new MandalaModel
   components: []
 
   initialize: ->
     @controls_id = 0
+    
+    @mandala_controls_container = $('#mandala-controls')
     @render()
-  
+
     @drawer_controls_container = $('#drawer-controls')
 
     @canvas_el = $('#mandala-canvas').get(0)
@@ -194,22 +198,35 @@ MandalaControlsView = Backbone.View.extend
     console.log 'adding ' + type
     @add_control(type)
     @draw() unless @model.get('animating')
+
+  remove_control: (evt) ->
+    name = evt.currentTarget.name
+    _.each @components, (comp) ->
+      if comp.name == name
+        $(comp.el).parent().remove()
+    @components = _.reject @components, (comp) ->
+      comp.name == name
+    @draw()
  
   add_control: (type) ->
     #type is ignored right now....
     @controls_id = @controls_id + 1
     id = 'drawer-' + @controls_id
-    jid = '#' + id
+    jid = '#' + id + '-controls'
     container = _.template($('#drawer-container-template').html(), {id: id})
     @drawer_controls_container.append(container)
-
+   
+    init_obj =
+      el: jid
+      name: id 
     new_component = switch type
       when 'circles'
-        new CirclesView el: jid
+        new CirclesView init_obj
       when 'stars'
-        new StarsView el: jid
+        new StarsView init_obj
       else
         console.log 'ERROR: unknown type of drawer: ' + type
+
     new_component.mandala_model = @model
     new_component.canvas = @canvas
     new_component.reset_canvas = @draw
@@ -218,12 +235,13 @@ MandalaControlsView = Backbone.View.extend
 
   render: ->
     template = _.template($('#mandala-template').html(), @model.toJSON())
-    this.$el.html(template)
+    @mandala_controls_container.html(template)
 
   events:
-    "change .model"              : "control_changed"
-    "click  .model[type=button]" : "control_changed"
-    "click  #add-new-drawer"     : "add_drawer"
+    "change .model"                  : "control_changed"
+    "click  .model[type=button]"     : "control_changed"
+    "click  #add-new-drawer"         : "add_drawer"
+    "click  .remove-mandala-control" : "remove_control"
 
   control_changed: (evt) ->
     name  = evt.currentTarget.name
@@ -238,7 +256,7 @@ MandalaControlsView = Backbone.View.extend
       @stop()
   
   go: () ->
-    @animate_interval = setInterval((() => 
+    @animate_interval = setInterval((() =>
       @draw()
       @model.increment()
     ), 1000.0/30.0) unless @animate_interval

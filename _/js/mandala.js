@@ -11,7 +11,9 @@
     mandala_model: null,
     canvas: null,
     mandala_control: null,
-    initialize: function() {
+    name: null,
+    initialize: function(init_obj) {
+      this.name = init_obj != null ? init_obj.name : void 0;
       this.setup_model();
       return this.render();
     },
@@ -171,11 +173,12 @@
   });
 
   MandalaControlsView = Backbone.View.extend({
-    el: '#mandala-controls',
+    el: '#wrapper',
     model: new MandalaModel,
     components: [],
     initialize: function() {
       this.controls_id = 0;
+      this.mandala_controls_container = $('#mandala-controls');
       this.render();
       this.drawer_controls_container = $('#drawer-controls');
       this.canvas_el = $('#mandala-canvas').get(0);
@@ -194,25 +197,38 @@
         return this.draw();
       }
     },
+    remove_control: function(evt) {
+      var name;
+      name = evt.currentTarget.name;
+      _.each(this.components, function(comp) {
+        if (comp.name === name) {
+          return $(comp.el).parent().remove();
+        }
+      });
+      this.components = _.reject(this.components, function(comp) {
+        return comp.name === name;
+      });
+      return this.draw();
+    },
     add_control: function(type) {
-      var container, id, jid, new_component;
+      var container, id, init_obj, jid, new_component;
       this.controls_id = this.controls_id + 1;
       id = 'drawer-' + this.controls_id;
-      jid = '#' + id;
+      jid = '#' + id + '-controls';
       container = _.template($('#drawer-container-template').html(), {
         id: id
       });
       this.drawer_controls_container.append(container);
+      init_obj = {
+        el: jid,
+        name: id
+      };
       new_component = (function() {
         switch (type) {
           case 'circles':
-            return new CirclesView({
-              el: jid
-            });
+            return new CirclesView(init_obj);
           case 'stars':
-            return new StarsView({
-              el: jid
-            });
+            return new StarsView(init_obj);
           default:
             return console.log('ERROR: unknown type of drawer: ' + type);
         }
@@ -226,12 +242,13 @@
     render: function() {
       var template;
       template = _.template($('#mandala-template').html(), this.model.toJSON());
-      return this.$el.html(template);
+      return this.mandala_controls_container.html(template);
     },
     events: {
       "change .model": "control_changed",
       "click  .model[type=button]": "control_changed",
-      "click  #add-new-drawer": "add_drawer"
+      "click  #add-new-drawer": "add_drawer",
+      "click  .remove-mandala-control": "remove_control"
     },
     control_changed: function(evt) {
       var chg_obj, element_value, name;
