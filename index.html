@@ -110,6 +110,7 @@
     <div>
       <label>Add Drawer</label>
       <select id='drawer-to-add'>
+        <option>experiment</option>
         <option>circles</option>
         <option>stars</option>
       </select>
@@ -124,6 +125,11 @@
     <button name='<%= id %>' class='remove-mandala-control' >Remove</button>
     <div id='<%= id %>-controls'></div>
   </div>
+</script>
+
+<script type='text/template' id='x-template'>
+  <h3 class='mandala-control-heading'>Experimental Drawer</h3>
+
 </script>
 
 <script type='text/template' id='circles-template'>

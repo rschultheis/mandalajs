@@ -50,6 +50,51 @@ GenericDrawer = Backbone.View.extend
     @canvas.lineTo(mattrs.mid.x, 0)
     @canvas.stroke()
 
+XModel = Backbone.Model.extend
+  defaults:
+    num_circles: 8
+
+XView = GenericDrawer.extend
+  template_locator: '#x-template'
+  
+  setup_model: () ->
+    @model = new XModel
+
+  draw: () ->
+    @draw_crosshairs()
+    attrs     = @model.attributes
+    mattrs    = @mandala_model.attributes
+    
+
+    #for i in [1..1]
+    @canvas.save()
+    @canvas.translate(200, 200)
+    for i in [1..attrs.num_circles]
+      step = (2.0 * Math.PI / (i * 3))
+      for j in [1..i * 3]
+        @canvas.save()
+        @canvas.beginPath()
+        rotate_amt = switch i%2
+          when 0
+            j*step + mattrs.offset
+          when 1
+            -(j*step + mattrs.offset)
+
+        @canvas.rotate(rotate_amt)
+
+        @canvas.fillStyle = switch j%3
+          when 0
+            "rgba(200, 0, 0, 0.3)"
+          when 1
+            "rgba(0, 200, 0, 0.3)"
+          when 2
+            "rgba(0, 0, 200, 0.3)"
+
+        @canvas.arc(0, i * 20, i* 10, 0, 2.8 * Math.PI, false)
+        @canvas.fill()
+        @canvas.restore()
+
+    @canvas.restore()
 
 # CIRCLES drawer
 CirclesModel = Backbone.Model.extend
@@ -185,6 +230,7 @@ MandalaControlsView = Backbone.View.extend
     @canvas = @canvas_el.getContext('2d')
     @toggler = $('input[name=animating]')
 
+    @add_control('experiment')
     #@add_control('stars')
     #@add_control('circles')
 
@@ -220,6 +266,8 @@ MandalaControlsView = Backbone.View.extend
       el: jid
       name: id 
     new_component = switch type
+      when 'experiment'
+        new XView init_obj
       when 'circles'
         new CirclesView init_obj
       when 'stars'
